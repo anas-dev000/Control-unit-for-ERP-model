@@ -46,6 +46,10 @@ docker-compose up --build
 - **Frontend (UI)**: [http://localhost:5173](http://localhost:5173)
 - **Backend (API)**: [http://localhost:5000](http://localhost:5000)
 
+**Default Credentials:**
+- **Email**: `admin@acme.com`
+- **Password**: `password123`
+
 ---
 
 ### Option 2: Local Setup (Development)
