@@ -14,7 +14,7 @@ const Tabs = {
 };
 
 export default function Settings() {
-  const { user, tenant, updateTenant } = useAuth();
+  const { user, tenant, updateTenant, updateUser } = useAuth();
   const [activeTab, setActiveTab] = useState(Tabs.PROFILE);
   const queryClient = useQueryClient();
   
@@ -47,10 +47,9 @@ export default function Settings() {
       firstName: data.firstName,
       lastName: data.lastName
     }),
-    onSuccess: () => {
+    onSuccess: (res) => {
+      updateUser(res.data.data);
       alert('Profile updated successfully!');
-      // Ideally reload user data here or update context
-      window.location.reload(); 
     }
   });
 
