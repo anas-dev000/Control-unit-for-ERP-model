@@ -1,34 +1,36 @@
-# Base stage for shared dependencies
+# Base stage
 FROM node:20-slim AS base
 WORKDIR /app
-RUN npm install -g pnpm
 
-# Backend build stage
+# Backend Build Stage
 FROM base AS backend-build
-COPY apps/backend/package.json ./apps/backend/
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
-COPY apps/backend ./apps/backend
-RUN cd apps/backend && npx prisma generate && npm run build
+WORKDIR /app/apps/backend
+COPY apps/backend/package*.json ./
+RUN npm install
+COPY apps/backend ./
+RUN npx prisma generate
+RUN npm run build
 
-# Frontend build stage
+# Frontend Build Stage
 FROM base AS frontend-build
-COPY apps/frontend/package.json ./apps/frontend/
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
-COPY apps/frontend ./apps/frontend
-RUN cd apps/frontend && npm run build
+WORKDIR /app/apps/frontend
+COPY apps/frontend/package*.json ./
+RUN npm install
+COPY apps/frontend ./
+RUN npm run build
 
-# Final production stage
+# Production Stage
 FROM node:20-slim
 WORKDIR /app
-RUN npm install -g pnpm
 
+# Copy backend artifacts
 COPY --from=backend-build /app/apps/backend/dist ./dist
-COPY --from=backend-build /app/apps/backend/package.json ./
+COPY --from=backend-build /app/apps/backend/package*.json ./
 COPY --from=backend-build /app/apps/backend/node_modules ./node_modules
 COPY --from=backend-build /app/apps/backend/prisma ./prisma
+
+# Copy frontend artifacts
 COPY --from=frontend-build /app/apps/frontend/dist ./public
 
 EXPOSE 5000
-CMD ["pnpm", "start"]
+CMD ["npm", "start"]
