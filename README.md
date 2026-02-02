@@ -42,6 +42,13 @@ We use specific `.dockerignore` files to keep builds fast.
 docker-compose up --build
 ```
 
+#### 3. Initial Setup (One-Time Only)
+After the containers are running, you **must** seed the database to create the default admin user:
+```bash
+# Run this in a new terminal window at the project root
+docker-compose exec backend node dist/prisma/seed.js
+```
+
 #### 3. Visit the App
 - **Frontend (UI)**: [http://localhost:5173](http://localhost:5173)
 - **Backend (API)**: [http://localhost:5000](http://localhost:5000)
