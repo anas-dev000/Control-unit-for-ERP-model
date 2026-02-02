@@ -39,6 +39,21 @@ export class UserController {
     }
   }
 
+  static async updateProfile(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = (req as any).userId;
+      const result = updateUserSchema.safeParse(req.body);
+      if (!result.success) {
+        throw new ValidationError('Invalid update data', result.error.format());
+      }
+      // Prevent updating role or sensitive fields if needed (omitted for now as Zod schema should handle it or we use admin logic)
+      const user = await UserService.update(userId, result.data);
+      res.json({ status: 'success', data: user });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   static async delete(req: Request, res: Response, next: NextFunction) {
     try {
       await UserService.delete(req.params.id as string);

@@ -21,17 +21,36 @@ export default function Settings() {
   const { register, handleSubmit, reset } = useForm({
     defaultValues: {
       companyName: tenant?.name || '',
-      taxNumber: (tenant as any)?.taxNumber || '',
+      taxNumber: (tenant as any)?.settings?.taxNumber || '',
+      currency: (tenant as any)?.settings?.currency || 'USD',
       firstName: user?.firstName || '',
       lastName: user?.lastName || '',
     }
   });
 
   const updateCompanyMutation = useMutation({
-    mutationFn: (data: any) => api.patch('/company/me', { name: data.companyName, settings: { taxNumber: data.taxNumber } }),
+    mutationFn: (data: any) => api.patch('/company/me', { 
+      name: data.companyName, 
+      settings: { 
+        taxNumber: data.taxNumber,
+        currency: data.currency
+      } 
+    }),
     onSuccess: (res) => {
       updateTenant(res.data.data);
       alert('Company profile updated successfully!');
+    }
+  });
+
+  const updateProfileMutation = useMutation({
+    mutationFn: (data: any) => api.patch('/users/profile', {
+      firstName: data.firstName,
+      lastName: data.lastName
+    }),
+    onSuccess: () => {
+      alert('Profile updated successfully!');
+      // Ideally reload user data here or update context
+      window.location.reload(); 
     }
   });
 
@@ -44,6 +63,8 @@ export default function Settings() {
   const onSubmit = (data: any) => {
     if (activeTab === Tabs.PROFILE) {
       updateCompanyMutation.mutate(data);
+    } else if (activeTab === Tabs.ACCOUNT) {
+      updateProfileMutation.mutate(data);
     }
   };
 
@@ -93,9 +114,13 @@ export default function Settings() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <label className="text-sm font-semibold text-slate-700 ml-1">Default Currency</label>
-                    <select className="w-full rounded-xl border-2 border-slate-100 bg-white py-3 px-4 outline-none focus:border-primary-500">
+                    <select 
+                      {...register('currency')}
+                      className="w-full rounded-xl border-2 border-slate-100 bg-white py-3 px-4 outline-none focus:border-primary-500"
+                    >
                       <option value="USD">USD - US Dollar</option>
                       <option value="SAR">SAR - Saudi Riyal</option>
+                      <option value="EGP">EGP - Egyptian Pound</option>
                     </select>
                   </div>
                   <Input 
@@ -117,9 +142,6 @@ export default function Settings() {
             <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
               <div className="flex justify-between items-center mb-8">
                 <h3 className="text-xl font-bold text-slate-800">Team Members</h3>
-                <Button size="sm" className="rounded-xl">
-                  <Plus className="w-4 h-4 mr-2" /> Invite
-                </Button>
               </div>
               
               <div className="space-y-4">
@@ -146,14 +168,22 @@ export default function Settings() {
           {activeTab === Tabs.ACCOUNT && (
             <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
               <h3 className="text-xl font-bold text-slate-800 mb-8">Personal Information</h3>
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <Input label="First Name" {...register('firstName')} />
-                <Input label="Last Name" {...register('lastName')} />
-              </div>
-              <Input label="Email Address" disabled value={user?.email || ''} />
-              <p className="mt-6 text-sm text-slate-400 italic">
-                Your account is managed by your organization's administrator.
-              </p>
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  <Input label="First Name" {...register('firstName')} />
+                  <Input label="Last Name" {...register('lastName')} />
+                </div>
+                <Input label="Email Address" disabled value={user?.email || ''} />
+                <p className="text-sm text-slate-400 italic">
+                  Your account is managed by your organization's administrator.
+                </p>
+
+                <div className="pt-4 border-t border-slate-50 flex justify-end">
+                  <Button type="submit" isLoading={updateProfileMutation.isPending} className="rounded-xl px-8">
+                    <Save className="w-4 h-4 mr-2" /> Save Profile
+                  </Button>
+                </div>
+              </form>
             </div>
           )}
         </div>

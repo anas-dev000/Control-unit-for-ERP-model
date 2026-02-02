@@ -6,6 +6,9 @@ const router = Router();
 
 router.use(authMiddleware);
 
+// Self-management
+router.patch('/profile', UserController.updateProfile);
+
 // Only admins can manage users
 router.get('/', authorize('ADMIN'), UserController.list);
 router.post('/', authorize('ADMIN'), UserController.create);
