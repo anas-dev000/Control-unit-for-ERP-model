@@ -105,6 +105,7 @@ export default function Register() {
               label="Password"
               type="password"
               placeholder="••••••••"
+              minLength={8}
               icon={<Lock className="w-5 h-5" />}
               error={errors.password?.message}
               {...register('password')}

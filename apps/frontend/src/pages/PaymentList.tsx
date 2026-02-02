@@ -167,6 +167,7 @@ export default function PaymentList() {
               label="Amount Paid"
               type="number"
               step="0.01"
+              min="0.01"
               icon={<DollarSign className="w-4 h-4" />}
               error={errors.amount?.message}
               {...register('amount', { valueAsNumber: true })}

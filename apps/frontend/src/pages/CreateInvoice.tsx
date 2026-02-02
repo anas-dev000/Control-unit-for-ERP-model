@@ -196,6 +196,7 @@ export default function CreateInvoice() {
                     <Input 
                       type="number"
                       placeholder="Qty"
+                      min="1"
                       error={errors.items?.[index]?.quantity?.message}
                       {...register(`items.${index}.quantity` as const, { valueAsNumber: true })}
                       className="bg-white border-none text-center"
@@ -206,6 +207,7 @@ export default function CreateInvoice() {
                       type="number"
                       step="0.01"
                       placeholder="Price"
+                      min="0"
                       icon={<DollarSign className="w-4 h-4" />}
                       error={errors.items?.[index]?.unitPrice?.message}
                       {...register(`items.${index}.unitPrice` as const, { valueAsNumber: true })}
