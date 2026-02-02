@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest';
 import { calculateInvoiceTotals } from '../../src/common/utils/calculations';
-import { Decimal } from 'decimal.js';
 
 describe('calculateInvoiceTotals', () => {
   it('should correctly calculate subtotal, tax and total for multiple items', () => {

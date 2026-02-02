@@ -4,7 +4,7 @@ import { updateTenantSchema } from './tenant.dto';
 import { ValidationError } from '../../common/errors/AppError';
 
 export class TenantController {
-  static async getCurrent(req: Request, res: Response, next: NextFunction) {
+  static async getCurrent(_req: Request, res: Response, next: NextFunction) {
     try {
       const tenant = await TenantService.getCurrent();
       res.json({ status: 'success', data: tenant });

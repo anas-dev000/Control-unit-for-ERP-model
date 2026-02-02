@@ -34,7 +34,7 @@ export class InvoiceController {
 
   static async findById(req: Request, res: Response, next: NextFunction) {
     try {
-      const invoice = await InvoiceService.findById(req.params.id);
+      const invoice = await InvoiceService.findById(req.params.id as string);
       res.status(200).json({ status: 'success', data: invoice });
     } catch (error) {
       next(error);
@@ -48,7 +48,7 @@ export class InvoiceController {
         throw new ValidationError('Invalid input data', result.error.format());
       }
 
-      const invoice = await InvoiceService.updateStatus(req.params.id, result.data.status);
+      const invoice = await InvoiceService.updateStatus(req.params.id as string, result.data.status);
       res.status(200).json({ status: 'success', data: invoice });
     } catch (error) {
       next(error);
@@ -57,7 +57,7 @@ export class InvoiceController {
 
   static async cancel(req: Request, res: Response, next: NextFunction) {
     try {
-      await InvoiceService.cancel(req.params.id);
+      await InvoiceService.cancel(req.params.id as string);
       res.status(200).json({ status: 'success', message: 'Invoice cancelled successfully' });
     } catch (error) {
       next(error);

@@ -50,7 +50,7 @@ model User {
 
   tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
-  @@unique([tenantId, email])
+  @@unique([tenantId, email], name: "tenantId_email")
   @@index([tenantId, isActive])
   @@index([email])
   @@map("users")
@@ -87,6 +87,8 @@ model Customer {
 
   @@index([tenantId, isActive])
   @@index([tenantId, name])
+  @@unique([tenantId, name], name: "tenantId_name")
+  @@unique([tenantId, email], name: "tenantId_email")
   @@map("customers")
 }
 
@@ -117,7 +119,7 @@ model Invoice {
   items    InvoiceItem[]
   payments Payment[]
 
-  @@unique([tenantId, invoiceNumber])
+  @@unique([tenantId, invoiceNumber], name: "tenantId_invoiceNumber")
   @@index([tenantId, customerId, status])
   @@index([tenantId, date])
   @@index([tenantId, status, dueDate])

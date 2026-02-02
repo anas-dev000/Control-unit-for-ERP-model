@@ -90,4 +90,59 @@ export class CustomerService {
       data: { deletedAt: new Date() },
     });
   }
+
+  static async getStatement(id: string) {
+    const tenantId = getTenantId();
+    if (!tenantId) throw new UnauthorizedError();
+
+    const customer = await prisma.customer.findFirst({
+      where: { id, tenantId, deletedAt: null },
+      include: {
+        invoices: {
+          where: { deletedAt: null },
+          orderBy: { date: 'desc' },
+          include: { payments: true }
+        },
+        payments: {
+          where: { deletedAt: null },
+          orderBy: { paymentDate: 'desc' }
+        }
+      }
+    });
+
+    if (!customer) throw new NotFoundError('Customer');
+
+    // Combine invoices and payments into a ledger
+    const ledger = [
+      ...customer.invoices.map(inv => ({
+        type: 'INVOICE',
+        id: inv.id,
+        date: inv.date,
+        reference: inv.invoiceNumber,
+        amount: Number(inv.total),
+        balance_effect: Number(inv.total)
+      })),
+      ...customer.payments.map(pmt => ({
+        type: 'PAYMENT',
+        id: pmt.id,
+        date: pmt.paymentDate,
+        reference: pmt.reference || 'Payment',
+        amount: Number(pmt.amount),
+        balance_effect: -Number(pmt.amount)
+      }))
+    ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+    const totalInvoiced = customer.invoices.reduce((sum, inv) => sum + Number(inv.total), 0);
+    const totalPaid = customer.payments.reduce((sum, pmt) => sum + Number(pmt.amount), 0);
+
+    return {
+      customer: { id: customer.id, name: customer.name, email: customer.email },
+      summary: {
+        totalInvoiced,
+        totalPaid,
+        balance: totalInvoiced - totalPaid
+      },
+      ledger
+    };
+  }
 }

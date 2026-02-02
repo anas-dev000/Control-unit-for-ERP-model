@@ -33,7 +33,7 @@ export class CustomerController {
 
   static async findById(req: Request, res: Response, next: NextFunction) {
     try {
-      const customer = await CustomerService.findById(req.params.id);
+      const customer = await CustomerService.findById(req.params.id as string);
       res.status(200).json({ status: 'success', data: customer });
     } catch (error) {
       next(error);
@@ -47,7 +47,7 @@ export class CustomerController {
         throw new ValidationError('Invalid input data', result.error.format());
       }
 
-      const customer = await CustomerService.update(req.params.id, result.data);
+      const customer = await CustomerService.update(req.params.id as string, result.data);
       res.status(200).json({ status: 'success', data: customer });
     } catch (error) {
       next(error);
@@ -56,8 +56,17 @@ export class CustomerController {
 
   static async delete(req: Request, res: Response, next: NextFunction) {
     try {
-      await CustomerService.delete(req.params.id);
+      await CustomerService.delete(req.params.id as string);
       res.status(200).json({ status: 'success', message: 'Customer deleted successfully' });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async getStatement(req: Request, res: Response, next: NextFunction) {
+    try {
+      const statement = await CustomerService.getStatement(req.params.id as string);
+      res.status(200).json({ status: 'success', data: statement });
     } catch (error) {
       next(error);
     }

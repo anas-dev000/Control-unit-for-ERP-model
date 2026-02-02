@@ -25,7 +25,7 @@ app.use(morgan(config.env === 'development' ? 'dev' : 'combined'));
 app.use(tenantMiddleware);
 
 // Health Check
-app.get('/health', (req, res) => {
+app.get('/health', (_req, res) => {
   res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 

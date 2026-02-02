@@ -1,4 +1,3 @@
-import { Decimal } from 'decimal.js';
 import { calculateInvoiceTotals } from '../../common/utils/calculations';
 import prisma from '../../lib/prisma';
 import { CreateInvoiceDTO } from './invoice.dto';

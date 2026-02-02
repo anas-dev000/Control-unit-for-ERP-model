@@ -1,7 +1,7 @@
 import prisma from '../../lib/prisma';
 import { RecordPaymentDTO } from './payment.dto';
 import { getTenantId, getUserId } from '../../lib/context';
-import { UnauthorizedError, NotFoundError, ValidationError } from '../../common/errors/AppError';
+import { UnauthorizedError, NotFoundError } from '../../common/errors/AppError';
 import { Decimal } from 'decimal.js';
 
 export class PaymentService {

@@ -11,5 +11,6 @@ router.get('/', CustomerController.findAll);
 router.get('/:id', CustomerController.findById);
 router.patch('/:id', CustomerController.update);
 router.delete('/:id', CustomerController.delete);
+router.get('/:id/statement', CustomerController.getStatement);
 
 export default router;

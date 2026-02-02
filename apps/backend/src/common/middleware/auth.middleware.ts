@@ -1,10 +1,10 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction, RequestHandler } from 'express';
 import { UnauthorizedError, ForbiddenError } from '../errors/AppError';
 import { verifyAccessToken } from '../../utils/jwt';
 
 export const authMiddleware = (
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ) => {
   const authHeader = req.headers.authorization;
@@ -26,8 +26,8 @@ export const authMiddleware = (
   }
 };
 
-export const authorize = (...roles: string[]) => {
-  return (req: Request, res: Response, next: NextFunction) => {
+export const authorize = (...roles: string[]): RequestHandler => {
+  return (req: Request, _res: Response, next: NextFunction) => {
     const userRole = (req as any).userRole;
 
     if (!userRole || !roles.includes(userRole)) {

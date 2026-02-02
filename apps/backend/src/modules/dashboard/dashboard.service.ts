@@ -49,8 +49,8 @@ export class DashboardService {
       })
     ]);
 
-    const totalRevenue = revenue._sum.paidAmount || 0;
-    const totalOutstanding = (outstanding._sum.total || 0) as any - (outstanding._sum.paidAmount || 0) as any;
+    const totalRevenue = Number(revenue._sum.paidAmount || 0);
+    const totalOutstanding = Number(outstanding._sum.total || 0) - Number(outstanding._sum.paidAmount || 0);
 
     return {
       totalRevenue,
@@ -59,8 +59,38 @@ export class DashboardService {
       topCustomers: topCustomers.map(c => ({
         id: c.id,
         name: c.name,
-        revenue: c.invoices.reduce((sum, inv) => sum + (inv.total as any), 0)
+        revenue: c.invoices.reduce((sum, inv) => sum + Number(inv.total), 0)
       })).sort((a, b) => b.revenue - a.revenue)
     };
+  }
+
+  static async getAgingReport() {
+    const tenantId = getTenantId();
+    if (!tenantId) throw new UnauthorizedError();
+    
+    const now = new Date();
+    const invoices = await prisma.invoice.findMany({
+      where: { 
+        tenantId, 
+        status: { in: ['SENT', 'PARTIAL', 'OVERDUE'] },
+        deletedAt: null 
+      },
+      select: { total: true, paidAmount: true, dueDate: true }
+    });
+
+    const aging: Record<string, number> = { current: 0, '1-30': 0, '31-60': 0, '61-90': 0, '90+': 0 };
+
+    invoices.forEach(inv => {
+      const outstanding = Number(inv.total) - Number(inv.paidAmount);
+      const diffDays = Math.ceil((now.getTime() - new Date(inv.dueDate).getTime()) / (1000 * 60 * 60 * 24));
+
+      if (diffDays <= 0) aging.current += outstanding;
+      else if (diffDays <= 30) aging['1-30'] += outstanding;
+      else if (diffDays <= 60) aging['31-60'] += outstanding;
+      else if (diffDays <= 90) aging['61-90'] += outstanding;
+      else aging['90+'] += outstanding;
+    });
+
+    return aging;
   }
 }

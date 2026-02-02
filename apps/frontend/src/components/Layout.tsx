@@ -55,6 +55,7 @@ export default function Layout({ children }: LayoutProps) {
     { to: '/customers', icon: Users, label: 'Customers' },
     { to: '/invoices', icon: FileText, label: 'Invoices' },
     { to: '/payments', icon: CreditCard, label: 'Payments' },
+    { to: '/reports', icon: BarChart3, label: 'Reports' },
     { to: '/settings', icon: Settings, label: 'Settings' },
   ];
 

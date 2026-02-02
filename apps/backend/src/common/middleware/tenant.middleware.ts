@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import { tenantStorage } from '../../lib/context';
-import { UnauthorizedError } from '../errors/AppError';
 
 // Extending Express Request type
 declare global {
@@ -14,7 +13,7 @@ declare global {
 
 export const tenantMiddleware = (
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ) => {
   // If not authenticated yet (e.g. login/register), skip

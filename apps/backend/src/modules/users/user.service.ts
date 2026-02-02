@@ -36,12 +36,13 @@ export class UserService {
       throw new ConflictError('User with this email already exists in your organization');
     }
 
+    const { password: _, ...rest } = data;
     const hashedPassword = await bcrypt.hash(data.password, 10);
 
     return prisma.user.create({
       data: {
-        ...data,
-        password: hashedPassword,
+        ...rest,
+        passwordHash: hashedPassword,
         tenantId,
       },
       select: {

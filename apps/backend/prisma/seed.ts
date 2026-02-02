@@ -8,7 +8,7 @@ async function main() {
 
   // 1. Create Tenant
   const tenant = await prisma.tenant.upsert({
-    where: { name: 'Acme Corp' },
+    where: { domain: 'acme' },
     update: {},
     create: {
       name: 'Acme Corp',
@@ -20,11 +20,16 @@ async function main() {
   // 2. Create Admin User
   const hashedPassword = await bcrypt.hash('password123', 10);
   const user = await prisma.user.upsert({
-    where: { email: 'admin@acme.com' },
+    where: { 
+      tenantId_email: {
+        tenantId: tenant.id,
+        email: 'admin@acme.com'
+      }
+    },
     update: {},
     create: {
       email: 'admin@acme.com',
-      password: hashedPassword,
+      passwordHash: hashedPassword,
       firstName: 'John',
       lastName: 'Doe',
       role: 'ADMIN',
@@ -40,7 +45,12 @@ async function main() {
 
   for (const c of customers) {
     await prisma.customer.upsert({
-      where: { name_tenantId_deletedAt: { name: c.name, tenantId: c.tenantId, deletedAt: null as any } },
+      where: { 
+        tenantId_name: { 
+          tenantId: c.tenantId, 
+          name: c.name 
+        } 
+      },
       update: {},
       create: c,
     });

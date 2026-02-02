@@ -7,5 +7,6 @@ const router = Router();
 router.use(authMiddleware);
 
 router.get('/summary', DashboardController.getSummary);
+router.get('/aging', DashboardController.getAging);
 
 export default router;

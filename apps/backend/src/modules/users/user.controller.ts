@@ -4,7 +4,7 @@ import { createUserSchema, updateUserSchema } from './user.dto';
 import { ValidationError } from '../../common/errors/AppError';
 
 export class UserController {
-  static async list(req: Request, res: Response, next: NextFunction) {
+  static async list(_req: Request, res: Response, next: NextFunction) {
     try {
       const users = await UserService.list();
       res.json({ status: 'success', data: users });
@@ -32,7 +32,7 @@ export class UserController {
       if (!result.success) {
         throw new ValidationError('Invalid update data', result.error.format());
       }
-      const user = await UserService.update(req.params.id, result.data);
+      const user = await UserService.update(req.params.id as string, result.data);
       res.json({ status: 'success', data: user });
     } catch (error) {
       next(error);
@@ -41,7 +41,7 @@ export class UserController {
 
   static async delete(req: Request, res: Response, next: NextFunction) {
     try {
-      await UserService.delete(req.params.id);
+      await UserService.delete(req.params.id as string);
       res.json({ status: 'success', message: 'User deleted successfully' });
     } catch (error) {
       next(error);

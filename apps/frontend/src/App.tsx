@@ -9,6 +9,8 @@ import InvoiceList from './pages/InvoiceList';
 import CreateInvoice from './pages/CreateInvoice';
 import PaymentList from './pages/PaymentList';
 import Settings from './pages/Settings';
+import Reports from './pages/Reports/Reports';
+import AgingReport from './pages/Reports/AgingReport';
 import Layout from './components/Layout';
 
 const queryClient = new QueryClient();
@@ -37,6 +39,8 @@ function App() {
                     <Route path="invoices" element={<InvoiceList />} />
                     <Route path="invoices/new" element={<CreateInvoice />} />
                     <Route path="payments" element={<PaymentList />} />
+                    <Route path="reports" element={<Reports />} />
+                    <Route path="reports/aging" element={<AgingReport />} />
                     <Route path="settings" element={<Settings />} />
                   </Routes>
                 </Layout>
