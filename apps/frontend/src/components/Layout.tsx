@@ -20,9 +20,10 @@ interface LayoutProps {
   children: ReactNode;
 }
 
-const SidebarLink = ({ to, icon: Icon, label, collapsed }: { to: string, icon: any, label: string, collapsed: boolean }) => (
+const SidebarLink = ({ to, icon: Icon, label, collapsed, onClick }: { to: string, icon: any, label: string, collapsed: boolean, onClick?: () => void }) => (
   <NavLink
     to={to}
+    onClick={onClick}
     className={({ isActive }) => cn(
       'flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-300 group relative',
       isActive 
@@ -192,7 +193,12 @@ export default function Layout({ children }: LayoutProps) {
             
             <nav className="space-y-4">
               {menuItems.map((item) => (
-                <SidebarLink key={item.to} {...item} collapsed={false} />
+                <SidebarLink 
+                  key={item.to} 
+                  {...item} 
+                  collapsed={false} 
+                  onClick={() => setMobileOpen(false)}
+                />
               ))}
             </nav>
           </div>

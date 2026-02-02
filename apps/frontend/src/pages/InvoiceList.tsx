@@ -107,8 +107,64 @@ export default function InvoiceList() {
         </select>
       </div>
 
-      {/* Invoices Table */}
-      <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
+      {/* Mobile Card View */}
+      <div className="block lg:hidden space-y-4">
+        {isLoading ? (
+          [1, 2, 3].map((i) => (
+            <div key={i} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 animate-pulse h-32" />
+          ))
+        ) : data?.map((invoice: any) => (
+          <div key={invoice.id} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 space-y-3">
+            <div className="flex justify-between items-start">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <FileText className="w-4 h-4 text-slate-400" />
+                  <span className="font-bold text-slate-900">#{invoice.invoiceNumber}</span>
+                </div>
+                <p className="text-sm font-semibold text-slate-700">{invoice.customer?.name}</p>
+              </div>
+              <StatusBadge status={invoice.status} />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <div className="flex items-center gap-2 text-slate-500">
+                <Calendar className="w-3.5 h-3.5" />
+                {format(new Date(invoice.date), 'MMM dd, yyyy')}
+              </div>
+              <div className="text-right">
+                <span className="font-black text-slate-900">${invoice.total.toLocaleString()}</span>
+              </div>
+            </div>
+
+            <div className="pt-3 border-t border-slate-50 flex justify-end gap-2">
+               <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="rounded-xl w-full sm:w-auto justify-center"
+                  onClick={() => handleDownload(invoice)}
+                  disabled={downloadingId === invoice.id}
+                >
+                  {downloadingId === invoice.id ? (
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  ) : (
+                    <Download className="w-4 h-4 mr-2" />
+                  )}
+                  Download
+                </Button>
+                {/* Add other actions if needed */}
+            </div>
+          </div>
+        ))}
+         {!data?.length && !isLoading && (
+            <div className="text-center py-10 text-slate-400">
+              <FileText className="w-12 h-12 mx-auto mb-4 opacity-20" />
+              <p className="font-bold">No invoices found</p>
+            </div>
+         )}
+      </div>
+
+      {/* Invoices Table (Desktop) */}
+      <div className="hidden lg:block bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-slate-50/50 border-b border-slate-100">

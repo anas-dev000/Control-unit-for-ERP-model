@@ -87,7 +87,44 @@ export default function PaymentList() {
         </Button>
       </div>
 
-      <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
+      {/* Mobile Card View */}
+      <div className="block lg:hidden space-y-4">
+        {isLoading ? (
+          [1, 2, 3].map((i) => (
+            <div key={i} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 animate-pulse h-32" />
+          ))
+        ) : payments?.map((p: any) => (
+          <div key={p.id} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 space-y-3">
+             <div className="flex justify-between items-start">
+               <div className="flex items-center gap-2 font-bold text-slate-900 text-sm">
+                    <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                    {format(new Date(p.paymentDate), 'MMM dd, yyyy')}
+               </div>
+               <span className="text-lg font-black text-emerald-600">${p.amount.toLocaleString()}</span>
+             </div>
+
+             <div className="flex justify-between items-center">
+                 <span className="font-bold text-slate-700">{p.customer?.name}</span>
+                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-slate-100 text-slate-600 border border-slate-200">
+                    {p.method.replace('_', ' ')}
+                 </span>
+             </div>
+             
+             <div className="pt-2 border-t border-slate-50">
+                <span className="font-mono text-xs text-slate-500">
+                    {p.invoice?.invoiceNumber ? `Inv #${p.invoice.invoiceNumber}` : 'General Payment'}
+                </span>
+             </div>
+          </div>
+        ))}
+         {!payments?.length && !isLoading && (
+            <div className="text-center py-10 text-slate-400">
+               <p className="font-bold">No payments found</p>
+            </div>
+         )}
+      </div>
+
+      <div className="hidden lg:block bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-slate-50/50 border-b border-slate-100">

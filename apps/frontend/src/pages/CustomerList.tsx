@@ -103,8 +103,79 @@ export default function CustomerList() {
         </div>
       </div>
 
-      {/* Customers Table */}
-      <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
+      {/* Mobile Card View */}
+      <div className="block lg:hidden space-y-4">
+        {isLoading ? (
+          [1, 2, 3].map((i) => (
+             <div key={i} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 animate-pulse h-32" />
+          ))
+        ) : data?.map((customer: any) => (
+          <div key={customer.id} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 space-y-3">
+            <div className="flex justify-between items-start">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary-100 flex items-center justify-center text-primary-700 font-bold shrink-0">
+                   {customer.name.charAt(0)}
+                </div>
+                <div>
+                   <p className="font-bold text-slate-800">{customer.name}</p>
+                   <p className="text-xs text-slate-400">{customer.address || 'No address'}</p>
+                </div>
+              </div>
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-50 text-green-600 border border-green-100">
+                Active
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 gap-1 text-sm pt-2">
+                 {customer.email && (
+                      <div className="flex items-center gap-2 text-slate-600">
+                        <Mail className="w-3.5 h-3.5 text-slate-400" />
+                        {customer.email}
+                      </div>
+                  )}
+                  {customer.phone && (
+                      <div className="flex items-center gap-2 text-slate-600">
+                        <Phone className="w-3.5 h-3.5 text-slate-400" />
+                        {customer.phone}
+                      </div>
+                  )}
+            </div>
+            
+            <div className="flex items-center justify-between pt-3 border-t border-slate-50">
+               <span className="font-mono text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded-lg">
+                  {customer.taxNumber || 'No Tax ID'}
+               </span>
+               <div className="flex gap-2">
+                  <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => handleEdit(customer)}
+                      className="rounded-xl h-8 w-8 p-0"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => { if(confirm('Delete customer?')) deleteMutation.mutate(customer.id); }}
+                      className="rounded-xl h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+               </div>
+            </div>
+          </div>
+        ))}
+        {!data?.length && !isLoading && (
+            <div className="text-center py-10 text-slate-400">
+              <Users className="w-12 h-12 mx-auto mb-4 opacity-20" />
+              <p className="font-bold">No customers found</p>
+            </div>
+        )}
+      </div>
+
+      {/* Customers Table (Desktop) */}
+      <div className="hidden lg:block bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-slate-50/50 border-b border-slate-100">
