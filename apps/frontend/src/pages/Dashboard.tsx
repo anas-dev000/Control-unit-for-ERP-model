@@ -73,7 +73,7 @@ export default function Dashboard() {
         </div>
         <div className="flex gap-3">
           <Link to="/invoices/new">
-            <Button className="rounded-2xl shadow-primary-200" icon={<Plus className="w-4 h-4 mr-2" />}>
+            <Button className="rounded-2xl shadow-primary-200">
               <Plus className="w-4 h-4 mr-2" /> Create Invoice
             </Button>
           </Link>

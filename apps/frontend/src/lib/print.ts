@@ -1,9 +1,9 @@
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { format } from 'date-fns';
 
 export const generateInvoicePDF = (invoice: any) => {
-  const doc = new jsPDF() as any;
+  const doc = new jsPDF();
 
   // Header
   doc.setFontSize(22);
@@ -35,7 +35,7 @@ export const generateInvoicePDF = (invoice: any) => {
     `$${item.amount.toLocaleString()}`
   ]);
 
-  doc.autoTable({
+  autoTable(doc, {
     startY: 85,
     head: [['Description', 'Qty', 'Unit Price', 'Total']],
     body: tableData,

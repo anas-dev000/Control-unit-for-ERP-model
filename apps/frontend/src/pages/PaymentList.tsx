@@ -57,7 +57,16 @@ export default function PaymentList() {
   });
 
   const mutation = useMutation({
-    mutationFn: (data: PaymentFormValues) => api.post('/payments', data),
+    mutationFn: (data: PaymentFormValues) => {
+      // Clean up empty strings to undefined for optional fields
+      const payload = {
+        ...data,
+        invoiceId: data.invoiceId || undefined,
+        reference: data.reference || undefined,
+        notes: data.notes || undefined,
+      };
+      return api.post('/payments', payload);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['payments'] });
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
@@ -91,7 +100,11 @@ export default function PaymentList() {
           </thead>
           <tbody className="divide-y divide-slate-50">
             {isLoading ? (
-              [1,2,3].map(i => <tr key={i} className="h-16 animate-pulse bg-slate-50/10" />)
+              [1,2,3].map(i => (
+                <tr key={i} className="animate-pulse">
+                  <td colSpan={5} className="px-8 py-6 h-16 bg-slate-50/20" />
+                </tr>
+              ))
             ) : payments?.map((p: any) => (
               <tr key={p.id} className="hover:bg-slate-50/50 transition-colors">
                 <td className="px-8 py-6">
@@ -143,7 +156,7 @@ export default function PaymentList() {
               className="w-full rounded-xl border-2 border-slate-100 bg-white py-3 px-4 focus:border-primary-500 outline-none"
             >
               <option value="">No specific invoice</option>
-              {invoices?.invoices?.map((i: any) => (
+              {invoices?.map((i: any) => (
                 <option key={i.id} value={i.id}>#{i.invoiceNumber} - total ${i.total}</option>
               ))}
             </select>

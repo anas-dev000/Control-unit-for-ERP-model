@@ -1,8 +1,9 @@
-import { useQuery } from '@tanstack/react-query';
-import { Plus, Search, FileText, Filter, Download, MoreVertical, Calendar } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Plus, Search, FileText, Filter, Download, MoreVertical, Calendar, Loader2, Trash2 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Link } from 'react-router-dom';
+import api from '../lib/axios';
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { generateInvoicePDF } from '../lib/print';
@@ -22,7 +23,7 @@ const StatusBadge = ({ status }: { status: string }) => {
       "inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border",
       styles[status] || styles.DRAFT
     )}>
-      {status}
+      {status || 'UNKNOWN'}
     </span>
   );
 };
@@ -32,6 +33,9 @@ const cn = (...classes: any) => classes.filter(Boolean).join(' ');
 export default function InvoiceList() {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [actionOpenId, setActionOpenId] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
     queryKey: ['invoices', search, status],
@@ -40,6 +44,29 @@ export default function InvoiceList() {
       return resp.data.data;
     },
   });
+
+  const cancelMutation = useMutation({
+    mutationFn: (id: string) => api.delete(`/invoices/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['invoices'] });
+    },
+    onError: (err: any) => {
+      alert(err.response?.data?.message || 'Failed to cancel invoice');
+    }
+  });
+
+  const handleDownload = async (invoice: any) => {
+    try {
+      setDownloadingId(invoice.id);
+      const res = await api.get(`/invoices/${invoice.id}`);
+      generateInvoicePDF(res.data.data || res.data);
+    } catch (e) {
+      console.error(e);
+      alert('Failed to download invoice');
+    } finally {
+      setDownloadingId(null);
+    }
+  };
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
@@ -78,9 +105,6 @@ export default function InvoiceList() {
           <option value="PARTIAL">Partial</option>
           <option value="OVERDUE">Overdue</option>
         </select>
-        <Button variant="outline" size="md" className="rounded-xl border-dashed">
-          <Filter className="w-4 h-4 mr-2" /> More Filters
-        </Button>
       </div>
 
       {/* Invoices Table */}
@@ -103,7 +127,7 @@ export default function InvoiceList() {
                   <td colSpan={6} className="px-8 py-6 h-16 bg-slate-50/20" />
                 </tr>
               ))
-            ) : data?.invoices?.map((invoice: any) => (
+            ) : data?.map((invoice: any) => (
               <tr key={invoice.id} className="hover:bg-slate-50/50 transition-colors group">
                 <td className="px-8 py-6">
                   <div className="flex items-center gap-3">
@@ -141,18 +165,69 @@ export default function InvoiceList() {
                       variant="ghost" 
                       size="sm" 
                       className="rounded-xl"
-                      onClick={() => generateInvoicePDF(invoice)}
+                      onClick={() => handleDownload(invoice)}
+                      disabled={downloadingId === invoice.id}
                     >
-                      <Download className="w-4 h-4" />
+                      {downloadingId === invoice.id ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Download className="w-4 h-4" />
+                      )}
                     </Button>
-                    <Button variant="ghost" size="sm" className="rounded-xl">
-                      <MoreVertical className="w-4 h-4" />
-                    </Button>
+                    <div className="relative">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="rounded-xl"
+                        onClick={() => setActionOpenId(actionOpenId === invoice.id ? null : invoice.id)}
+                      >
+                        <MoreVertical className="w-4 h-4" />
+                      </Button>
+
+                      {actionOpenId === invoice.id && (
+                        <>
+                          <div 
+                            className="fixed inset-0 z-10" 
+                            onClick={() => setActionOpenId(null)} 
+                          />
+                          <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-slate-100 z-20 py-2 animate-in zoom-in-95 duration-200">
+                            <div className="px-4 py-2 border-b border-slate-50 mb-1">
+                              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Actions</p>
+                            </div>
+                            
+                            <button
+                              className="w-full text-left px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:text-primary-600 flex items-center gap-2 transition-colors"
+                              onClick={() => {
+                                handleDownload(invoice);
+                                setActionOpenId(null);
+                              }}
+                            >
+                              <FileText className="w-4 h-4" /> Download PDF
+                            </button>
+
+                            {invoice.status !== 'PAID' && invoice.status !== 'CANCELLED' && (
+                              <button
+                                onClick={() => {
+                                  if (window.confirm('Are you sure you want to cancel this invoice? This action cannot be undone.')) {
+                                    cancelMutation.mutate(invoice.id);
+                                    setActionOpenId(null);
+                                  }
+                                }}
+                                disabled={cancelMutation.isPending}
+                                className="w-full text-left px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors"
+                              >
+                                <Trash2 className="w-4 h-4" /> Cancel Invoice
+                              </button>
+                            )}
+                          </div>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </td>
               </tr>
             ))}
-            {!data?.invoices?.length && !isLoading && (
+            {!data?.length && !isLoading && (
               <tr>
                 <td colSpan={6} className="px-8 py-20 text-center">
                   <div className="max-w-xs mx-auto text-slate-400">
@@ -169,3 +244,5 @@ export default function InvoiceList() {
     </div>
   );
 }
+
+

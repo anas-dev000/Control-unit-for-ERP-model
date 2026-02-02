@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction, RequestHandler } from 'express';
 import { UnauthorizedError, ForbiddenError } from '../errors/AppError';
 import { verifyAccessToken } from '../../utils/jwt';
+import { tenantStorage } from '../../lib/context';
 
 export const authMiddleware = (
   req: Request,
@@ -20,7 +21,10 @@ export const authMiddleware = (
     req.userId = decoded.userId;
     req.tenantId = decoded.tenantId;
     (req as any).userRole = decoded.role;
-    next();
+    
+    tenantStorage.run({ tenantId: decoded.tenantId, userId: decoded.userId }, () => {
+      next();
+    });
   } catch (error) {
     throw new UnauthorizedError('Invalid or expired token');
   }

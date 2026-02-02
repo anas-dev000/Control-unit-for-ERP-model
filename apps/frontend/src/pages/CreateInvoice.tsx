@@ -14,7 +14,7 @@ import {
   FileText,
   DollarSign
 } from 'lucide-react';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../lib/axios';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
@@ -37,6 +37,8 @@ type InvoiceFormValues = z.infer<typeof invoiceSchema>;
 export default function CreateInvoice() {
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
+
+  const queryClient = useQueryClient();
 
   const { data: customers } = useQuery({
     queryKey: ['customers-simplified'],
@@ -62,8 +64,19 @@ export default function CreateInvoice() {
   });
 
   const mutation = useMutation({
-    mutationFn: (data: InvoiceFormValues) => api.post('/invoices', data),
-    onSuccess: () => navigate('/invoices'),
+    mutationFn: (data: InvoiceFormValues) => {
+      // Transform dates to ISO string for backend Zod validation
+      const payload = {
+        ...data,
+        date: new Date(data.date).toISOString(),
+        dueDate: new Date(data.dueDate).toISOString(),
+      };
+      return api.post('/invoices', payload);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['invoices'] });
+      navigate('/invoices');
+    },
     onError: (err: any) => setError(err.response?.data?.message || 'Failed to create invoice'),
   });
 

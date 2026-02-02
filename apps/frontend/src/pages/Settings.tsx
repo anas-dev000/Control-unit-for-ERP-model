@@ -105,7 +105,7 @@ export default function Settings() {
                 </div>
 
                 <div className="pt-4 border-t border-slate-50 flex justify-end">
-                  <Button type="submit" loading={updateCompanyMutation.isPending} className="rounded-xl px-8">
+                  <Button type="submit" isLoading={updateCompanyMutation.isPending} className="rounded-xl px-8">
                     <Save className="w-4 h-4 mr-2" /> Save Changes
                   </Button>
                 </div>

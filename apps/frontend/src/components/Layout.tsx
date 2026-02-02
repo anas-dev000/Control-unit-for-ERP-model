@@ -50,6 +50,17 @@ export default function Layout({ children }: LayoutProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  // Close mobile menu on desktop resize
+  React.useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setMobileOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const menuItems = [
     { to: '/', icon: BarChart3, label: 'Dashboard' },
     { to: '/customers', icon: Users, label: 'Customers' },
@@ -64,7 +75,7 @@ export default function Layout({ children }: LayoutProps) {
       {/* Sidebar - Desktop */}
       <aside 
         className={cn(
-          'fixed inset-y-0 left-0 z-40 bg-white border-r border-slate-100 transition-all duration-500 ease-in-out hidden lg:flex flex-col',
+          'fixed inset-y-0 left-0 z-50 bg-white border-r border-slate-100 transition-all duration-500 ease-in-out hidden lg:flex flex-col',
           collapsed ? 'w-24' : 'w-72'
         )}
       >

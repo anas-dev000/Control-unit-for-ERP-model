@@ -3,10 +3,10 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Mail, Lock, User, Building, UserPlus } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
-import { Button } from '../../components/ui/Button';
-import { Input } from '../../components/ui/Input';
-import api from '../../lib/axios';
+import { useAuth } from '../context/AuthContext';
+import { Button } from '../components/ui/Button';
+import { Input } from '../components/ui/Input';
+import api from '../lib/axios';
 import { useState } from 'react';
 
 const registerSchema = z.object({
@@ -51,8 +51,6 @@ export default function Register() {
           <div className="inline-flex items-center justify-center p-3 bg-primary-600 rounded-2xl shadow-lg shadow-primary-200 mb-4 transition-transform hover:scale-110 duration-300">
             <UserPlus className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">AccounFlow</h1>
-          <p className="text-slate-500 mt-2">Start your multi-tenant journey today</p>
         </div>
 
         {/* Register Card */}
