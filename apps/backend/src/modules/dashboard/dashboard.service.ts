@@ -7,7 +7,7 @@ export class DashboardService {
     const tenantId = getTenantId();
     if (!tenantId) throw new UnauthorizedError();
 
-    const [revenue, outstanding, invoiceStats, topCustomers, totalCustomers, activeInvoices, last30DaysInvoices] = await Promise.all([
+    const [revenue, outstanding, invoiceStats, topCustomerStats, totalCustomers, activeInvoices, last30DaysInvoices] = await Promise.all([
       // Total revenue (paid amount on all invoices)
       prisma.invoice.aggregate({
         where: { tenantId, deletedAt: null },
@@ -31,17 +31,17 @@ export class DashboardService {
         _count: { _all: true }
       }),
       
-      // Top 5 customers by revenue
-      prisma.customer.findMany({
-        where: { tenantId, deletedAt: null },
-        select: {
-          id: true,
-          name: true,
-          _count: { select: { invoices: true } },
-          invoices: {
-            where: { status: 'PAID', deletedAt: null },
-            select: { total: true }
-          }
+      // Top 5 customers by revenue (Aggregation Step 1)
+      prisma.invoice.groupBy({
+        by: ['customerId'],
+        where: { 
+            tenantId, 
+            deletedAt: null,
+            status: { in: ['PAID', 'PARTIAL'] }
+        },
+        _sum: { paidAmount: true },
+        orderBy: {
+            _sum: { paidAmount: 'desc' }
         },
         take: 5
       }),
@@ -77,6 +77,25 @@ export class DashboardService {
     const totalRevenue = Number(revenue._sum.paidAmount || 0);
     const totalOutstanding = Number(outstanding._sum.total || 0) - Number(outstanding._sum.paidAmount || 0);
 
+    // Fetch details for top customers (Aggregation Step 2)
+    const topCustomerDetails = await prisma.customer.findMany({
+        where: {
+            id: { in: topCustomerStats.map(s => s.customerId) },
+            tenantId
+        },
+        select: { id: true, name: true }
+    });
+
+    // Map stats to details
+    const topCustomers = topCustomerStats.map(stat => {
+        const detail = topCustomerDetails.find(c => c.id === stat.customerId);
+        return {
+            id: stat.customerId,
+            name: detail?.name || 'Unknown',
+            revenue: Number(stat._sum.paidAmount || 0)
+        };
+    });
+
     // Process Chart Data
     const chartData = [];
     for (let i = 29; i >= 0; i--) {
@@ -101,11 +120,7 @@ export class DashboardService {
       activeInvoices,
       invoiceStats,
       revenueChart: chartData,
-      topCustomers: topCustomers.map(c => ({
-        id: c.id,
-        name: c.name,
-        revenue: c.invoices.reduce((sum, inv) => sum + Number(inv.total), 0)
-      })).sort((a, b) => b.revenue - a.revenue)
+      topCustomers
     };
   }
 

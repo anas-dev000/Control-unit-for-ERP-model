@@ -114,7 +114,7 @@ export default function CreateInvoice() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
           {/* Main Info Card */}
-          <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 space-y-8">
+          <div className="bg-white p-4 md:p-8 rounded-[2.5rem] shadow-sm border border-slate-100 space-y-8">
             <h3 className="text-xl font-bold text-slate-800 flex items-center gap-3">
               <FileText className="w-6 h-6 text-primary-500" /> General Information
             </h3>
@@ -165,7 +165,7 @@ export default function CreateInvoice() {
           </div>
 
           {/* Line Items Card */}
-          <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 space-y-6">
+          <div className="bg-white p-4 md:p-8 rounded-[2.5rem] shadow-sm border border-slate-100 space-y-6">
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-bold text-slate-800">Invoice Items</h3>
               <Button 
@@ -181,7 +181,7 @@ export default function CreateInvoice() {
 
             <div className="space-y-4">
               {fields.map((field, index) => (
-                <div key={field.id} className="flex flex-col md:flex-row gap-4 items-start p-6 bg-slate-50/50 rounded-3xl group border border-transparent hover:border-slate-100 transition-all">
+                <div key={field.id} className="flex flex-col md:flex-row gap-4 items-start p-4 md:p-6 bg-slate-50/50 rounded-3xl group border border-transparent hover:border-slate-100 transition-all">
                   <div className="flex-1 w-full">
                     <Input 
                       placeholder="Item description"
