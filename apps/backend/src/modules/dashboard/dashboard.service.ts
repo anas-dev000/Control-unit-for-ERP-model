@@ -7,7 +7,7 @@ export class DashboardService {
     const tenantId = getTenantId();
     if (!tenantId) throw new UnauthorizedError();
 
-    const [revenue, outstanding, invoiceStats, topCustomers] = await Promise.all([
+    const [revenue, outstanding, invoiceStats, topCustomers, totalCustomers, activeInvoices, last30DaysInvoices] = await Promise.all([
       // Total revenue (paid amount on all invoices)
       prisma.invoice.aggregate({
         where: { tenantId, deletedAt: null },
@@ -15,8 +15,6 @@ export class DashboardService {
       }),
       
       // Total outstanding (total - paidAmount)
-      // Note: Prisma doesn't support sum of subtraction in aggregate easily
-      // We'll calculate it from totals
       prisma.invoice.aggregate({
         where: { 
           tenantId, 
@@ -46,16 +44,63 @@ export class DashboardService {
           }
         },
         take: 5
+      }),
+
+      // Total Customers
+      prisma.customer.count({
+        where: { tenantId, deletedAt: null }
+      }),
+
+      // Active Invoices (Not Paid or Cancelled)
+      prisma.invoice.count({
+        where: { 
+            tenantId, 
+            status: { in: ['SENT', 'PARTIAL', 'OVERDUE'] },
+            deletedAt: null
+        }
+      }),
+
+      // Revenue Chart Data (Last 30 Days)
+      prisma.payment.groupBy({
+        by: ['paymentDate'],
+        where: {
+            tenantId,
+            deletedAt: null,
+            paymentDate: {
+                gte: new Date(new Date().setDate(new Date().getDate() - 30))
+            }
+        },
+        _sum: { amount: true }
       })
     ]);
 
     const totalRevenue = Number(revenue._sum.paidAmount || 0);
     const totalOutstanding = Number(outstanding._sum.total || 0) - Number(outstanding._sum.paidAmount || 0);
 
+    // Process Chart Data
+    const chartData = [];
+    for (let i = 29; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const dateStr = d.toISOString().split('T')[0]; // YYYY-MM-DD
+        const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+        
+        // Find payments for this day
+        // Note: GroupBy returns Date objects, need to match YYYY-MM-DD
+        const dayTotal = last30DaysInvoices
+            .filter(p => p.paymentDate.toISOString().split('T')[0] === dateStr)
+            .reduce((sum, p) => sum + Number(p._sum.amount || 0), 0);
+
+        chartData.push({ name: dayName, date: dateStr, rev: dayTotal });
+    }
+
     return {
       totalRevenue,
       totalOutstanding,
+      totalCustomers,
+      activeInvoices,
       invoiceStats,
+      revenueChart: chartData,
       topCustomers: topCustomers.map(c => ({
         id: c.id,
         name: c.name,

@@ -102,9 +102,7 @@ export default function CreateInvoice() {
             <p className="text-slate-500 font-medium">Design and issue a new bill to your client.</p>
           </div>
         </div>
-        <Button onClick={handleSubmit(onSubmit)} isLoading={mutation.isPending} className="rounded-2xl shadow-xl shadow-primary-200">
-          <Save className="w-5 h-5 mr-3" /> Save & Issue Invoice
-        </Button>
+
       </div>
 
       {error && (
@@ -258,6 +256,14 @@ export default function CreateInvoice() {
               placeholder="Thank you for your business..."
             />
           </div>
+
+          <Button 
+            onClick={handleSubmit(onSubmit)} 
+            isLoading={mutation.isPending} 
+            className="w-full rounded-2xl shadow-xl shadow-primary-200 py-4 text-lg"
+          >
+            <Save className="w-5 h-5 mr-3" /> Save & Issue Invoice
+          </Button>
         </div>
       </div>
     </div>

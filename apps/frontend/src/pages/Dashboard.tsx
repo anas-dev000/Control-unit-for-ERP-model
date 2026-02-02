@@ -100,15 +100,15 @@ export default function Dashboard() {
         />
         <StatCard 
           title="Total Customers" 
-          value="124"
+          value={summary?.totalCustomers?.toLocaleString() || '0'}
           icon={Users}
-          trend="up"
-          trendValue="8"
+          // trend="up" // TODO: Add trend calculation backend
+          // trendValue="8"
           color="bg-indigo-500 shadow-indigo-200"
         />
         <StatCard 
           title="Active Invoices" 
-          value="42"
+          value={summary?.activeInvoices?.toString() || '0'}
           icon={FileText}
           color="bg-rose-500 shadow-rose-200"
         />
@@ -121,20 +121,11 @@ export default function Dashboard() {
             <h3 className="text-lg font-bold text-slate-800">Revenue Stream</h3>
             <select className="bg-slate-50 border-none rounded-xl px-4 py-2 text-sm font-bold text-slate-600 outline-none cursor-pointer">
               <option>Last 30 Days</option>
-              <option>Last 6 Months</option>
             </select>
           </div>
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={[
-                { name: 'Mon', rev: 4000 },
-                { name: 'Tue', rev: 3000 },
-                { name: 'Wed', rev: 2000 },
-                { name: 'Thu', rev: 2780 },
-                { name: 'Fri', rev: 1890 },
-                { name: 'Sat', rev: 2390 },
-                { name: 'Sun', rev: 3490 },
-              ]}>
+              <AreaChart data={summary?.revenueChart || []}>
                 <defs>
                   <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.3}/>

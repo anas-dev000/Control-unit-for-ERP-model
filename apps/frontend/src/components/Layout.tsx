@@ -200,6 +200,17 @@ export default function Layout({ children }: LayoutProps) {
                   onClick={() => setMobileOpen(false)}
                 />
               ))}
+
+              <button 
+                onClick={() => {
+                  setMobileOpen(false);
+                  logout();
+                }}
+                className="w-full flex items-center gap-4 px-4 py-3 rounded-2xl text-red-500 hover:bg-red-50 transition-colors group mt-8 border-t border-slate-100"
+              >
+                <LogOut className="w-5 h-5 flex-shrink-0" />
+                <span className="font-semibold text-sm">Sign Out</span>
+              </button>
             </nav>
           </div>
         </div>
