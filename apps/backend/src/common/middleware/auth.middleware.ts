@@ -19,6 +19,7 @@ export const authMiddleware = (
     const decoded = verifyAccessToken(token);
     req.userId = decoded.userId;
     req.tenantId = decoded.tenantId;
+    (req as any).userRole = decoded.role;
     next();
   } catch (error) {
     throw new UnauthorizedError('Invalid or expired token');
@@ -27,8 +28,12 @@ export const authMiddleware = (
 
 export const authorize = (...roles: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    // Role check logic here (requires user role in token or DB lookup)
-    // Assume token has role for performance
+    const userRole = (req as any).userRole;
+
+    if (!userRole || !roles.includes(userRole)) {
+      throw new ForbiddenError('You do not have permission to access this resource');
+    }
+
     next();
   };
 };

@@ -1,4 +1,5 @@
 import { Decimal } from 'decimal.js';
+import { calculateInvoiceTotals } from '../../common/utils/calculations';
 import prisma from '../../lib/prisma';
 import { CreateInvoiceDTO } from './invoice.dto';
 import { getTenantId, getUserId } from '../../lib/context';
@@ -13,22 +14,13 @@ export class InvoiceService {
 
     const { items, ...invoiceData } = data;
 
-    // Calculate totals with high precision (requirement 7)
-    let subtotal = new Decimal(0);
-    const invoiceItems = items.map((item, index) => {
-      const amount = new Decimal(item.quantity).times(item.unitPrice);
-      subtotal = subtotal.plus(amount);
-      return {
-        description: item.description,
-        quantity: new Decimal(item.quantity),
-        unitPrice: new Decimal(item.unitPrice),
-        amount,
-        sortOrder: index,
-      };
-    });
+    const { processedItems, subtotal, taxAmount, total } = calculateInvoiceTotals(items, this.TAX_RATE);
 
-    const taxAmount = subtotal.times(this.TAX_RATE).toDecimalPlaces(2, Decimal.ROUND_HALF_UP);
-    const total = subtotal.plus(taxAmount).toDecimalPlaces(2);
+    const invoiceItems = processedItems.map((item, index) => ({
+      ...item,
+      description: items[index].description,
+      sortOrder: index,
+    }));
 
     return await prisma.$transaction(async (tx) => {
       // Check customer ownership

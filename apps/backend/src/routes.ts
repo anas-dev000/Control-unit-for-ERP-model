@@ -4,6 +4,8 @@ import customerRoutes from './modules/customers/customer.routes';
 import invoiceRoutes from './modules/invoices/invoice.routes';
 import paymentRoutes from './modules/payments/payment.routes';
 import dashboardRoutes from './modules/dashboard/dashboard.routes';
+import userRoutes from './modules/users/user.routes';
+import tenantRoutes from './modules/tenants/tenant.routes';
 
 const router = Router();
 
@@ -12,5 +14,7 @@ router.use('/customers', customerRoutes);
 router.use('/invoices', invoiceRoutes);
 router.use('/payments', paymentRoutes);
 router.use('/dashboard', dashboardRoutes);
+router.use('/users', userRoutes);
+router.use('/company', tenantRoutes);
 
 export default router;

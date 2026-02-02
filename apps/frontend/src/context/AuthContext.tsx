@@ -18,6 +18,7 @@ interface AuthContextType {
   tenant: Tenant | null;
   login: (data: any) => void;
   logout: () => void;
+  updateTenant: (tenant: Tenant) => void;
   isAuthenticated: boolean;
   isLoading: boolean;
 }
@@ -55,8 +56,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     window.location.href = '/login';
   };
 
+  const updateTenant = (newTenant: Tenant) => {
+    localStorage.setItem('tenant', JSON.stringify(newTenant));
+    setTenant(newTenant);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, tenant, login, logout, isAuthenticated: !!user, isLoading }}>
+    <AuthContext.Provider value={{ user, tenant, login, logout, updateTenant, isAuthenticated: !!user, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

@@ -8,6 +8,7 @@ import CustomerList from './pages/CustomerList';
 import InvoiceList from './pages/InvoiceList';
 import CreateInvoice from './pages/CreateInvoice';
 import PaymentList from './pages/PaymentList';
+import Settings from './pages/Settings';
 import Layout from './components/Layout';
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ function App() {
                     <Route path="invoices" element={<InvoiceList />} />
                     <Route path="invoices/new" element={<CreateInvoice />} />
                     <Route path="payments" element={<PaymentList />} />
+                    <Route path="settings" element={<Settings />} />
                   </Routes>
                 </Layout>
               </ProtectedRoute>

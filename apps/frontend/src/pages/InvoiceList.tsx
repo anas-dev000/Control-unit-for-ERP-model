@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { Plus, Search, FileText, Filter, Download, MoreVertical, Calendar } from 'lucide-react';
-import api from '../lib/axios';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { format } from 'date-fns';
+import { generateInvoicePDF } from '../lib/print';
 
 const StatusBadge = ({ status }: { status: string }) => {
   const styles: any = {
@@ -137,7 +137,12 @@ export default function InvoiceList() {
                 </td>
                 <td className="px-8 py-6 text-right">
                   <div className="flex justify-end gap-2">
-                    <Button variant="ghost" size="sm" className="rounded-xl">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="rounded-xl"
+                      onClick={() => generateInvoicePDF(invoice)}
+                    >
                       <Download className="w-4 h-4" />
                     </Button>
                     <Button variant="ghost" size="sm" className="rounded-xl">

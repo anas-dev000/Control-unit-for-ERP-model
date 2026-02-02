@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { tenantStorage } from '../lib/context';
+import { tenantStorage } from '../../lib/context';
 import { UnauthorizedError } from '../errors/AppError';
 
 // Extending Express Request type
