@@ -34,8 +34,6 @@ This method orchestrates the database, backend, and frontend containers automati
 We use specific `.dockerignore` files to keep builds fast.
 ```bash
 # Verify you are in the root directory
-ls apps/frontend/.dockerignore
-ls apps/backend/.dockerignore
 ```
 
 #### 2. Run the App
