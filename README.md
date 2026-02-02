@@ -13,16 +13,44 @@ A production-ready, highly isolated multi-tenant accounting platform built with 
 ## 🛠️ Tech Stack
 - **Backend**: Express, TypeScript, Prisma, PostgreSQL, Zod, JWT, Decimal.js.
 - **Frontend**: Vite, React, TypeScript, Tailwind CSS, TanStack Query, Recharts, Lucide.
+- **Infrastructure**: Docker, Nginx, PostgreSQL (Alpine).
 
 ---
 
 ## 📥 Getting Started
 
 You can run this project in two ways:
-1. **Local Setup** (Recommended for development)
-2. **Docker Setup** (Recommended for quick testing/deployment)
+1. **Docker Setup** (Recommended for easiest startup)
+2. **Local Setup** (Recommended for active development)
 
-### Option 1: Local Setup (Development)
+### Option 1: Docker Setup (Recommended)
+
+**Prerequisites:**
+- Docker & Docker Compose installed
+
+This method orchestrates the database, backend, and frontend containers automatically.
+
+#### 1. Optimization (First Run Only)
+We use specific `.dockerignore` files to keep builds fast.
+```bash
+# Verify you are in the root directory
+ls apps/frontend/.dockerignore
+ls apps/backend/.dockerignore
+```
+
+#### 2. Run the App
+```bash
+# Build and start all services
+docker-compose up --build
+```
+
+#### 3. Visit the App
+- **Frontend (UI)**: [http://localhost:5173](http://localhost:5173)
+- **Backend (API)**: [http://localhost:5000](http://localhost:5000)
+
+---
+
+### Option 2: Local Setup (Development)
 
 **Prerequisites:**
 - Node.js (v18+)
@@ -30,72 +58,68 @@ You can run this project in two ways:
 
 #### 1. Clone & Install
 ```bash
-# Clone the repository
 git clone <repo-url>
 cd multi-tenant-accounting
 
-# Install dependencies (backend)
+# Install Backend Dependencies
 cd apps/backend
 npm install
 
-# Install dependencies (frontend)
+# Install Frontend Dependencies
 cd ../frontend
 npm install
 ```
 
 #### 2. Database Setup
-Ensure your local PostgreSQL is running and update `apps/backend/.env` with your credentials.
+Ensure your local PostgreSQL is running and update `apps/backend/.env`.
 
 ```bash
-# Set up .env in apps/backend
+# Setup Environment Variables
 cd apps/backend
 cp .env.example .env
+# Edit .env with your local DB credentials
 
-# Run migrations
+# Run Migrations & Seed
 npx prisma migrate dev
-
-# Seed initial data (optional but recommended)
 npx prisma db seed
 ```
 
-#### 3. Run the App
-You will need two terminal windows:
+#### 3. Run Development Servers
+You need two terminal windows:
 
 **Terminal 1 (Backend):**
 ```bash
 cd apps/backend
 npm run dev
+# Server running at http://localhost:5000
 ```
 
 **Terminal 2 (Frontend):**
 ```bash
 cd apps/frontend
 npm run dev
+# Client running at http://localhost:5173
 ```
-Open [http://localhost:5173](http://localhost:5173) to view the app.
 
 ---
 
-### Option 2: Docker Setup (Quick Start)
+## 📂 Project Structure
 
-**Prerequisites:**
-- Docker & Docker Compose installed
-
-This method automatically sets up the database and application containers.
-
-#### 1. Run with Docker Compose
-```bash
-# From the root directory
-docker-compose up --build
 ```
-
-The app will be available at [http://localhost:5000](http://localhost:5000) (serving frontend assets via backend) or you can configure it to serve separately.
-
-*Note: The current Docker setup serves the backend on port 5000. For full development experience with hot-reload, Option 1 is recommended.*
-
----
+├── apps/
+│   ├── backend/        # Express API (Node.js)
+│   │   ├── Dockerfile  # Backend-specific Docker build
+│   │   └── src/        # API Source Code
+│   │
+│   └── frontend/       # React App (Vite)
+│       ├── Dockerfile  # Frontend-specific Docker build
+│       └── nginx.conf  # Nginx routing configuration
+│
+├── docker-compose.yml  # Orchestration service definition
+└── README.md           # Documentation
+```
 
 ## 🔐 Security 
 - **Row-Level Isolation**: Every query is automatically scoped to the user's `tenantId`.
 - **Validation**: Strict schema validation on every request using Zod.
-- **JWT**: Secure token handling with HttpOnly cookie support planned.
+- **JWT**: Secure token handling.
